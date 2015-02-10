@@ -508,6 +508,7 @@
 		
 		#pp_full_res {
 			line-height: 1 !important;
+			overflow: hidden;
 		}
 		
 			#pp_full_res .pp_inline {

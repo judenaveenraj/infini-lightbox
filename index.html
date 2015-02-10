@@ -7,7 +7,8 @@
 		<!--script src="js/jquery.lint.js" type="text/javascript" charset="utf-8"></script-->
 		<link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" title="prettyPhoto main stylesheet" charset="utf-8" />
 		<script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
-		
+		<script src="js/jquery-mousewheel.min.js" type="text/javascript" charset="utf-8"></script>
+
 		<style type="text/css" media="screen">
 			* { margin: 0; padding: 0; }
 			
@@ -91,7 +92,10 @@
 			$(document).ready(function(){
 				$("area[rel^='prettyPhoto']").prettyPhoto();
 				
-				$(".gallery:first a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'normal',theme:'light_square',slideshow:3000, autoplay_slideshow: false});
+				$(".gallery:first a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'normal',theme:'light_square',slideshow:3000, autoplay_slideshow: false,
+						changepicturecallback: function(){zoom();} /* Called everytime an item is shown/changed */
+						}
+					);
 				$(".gallery:gt(0) a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'fast',slideshow:10000, hideflash: true});
 		
 				$("#custom_content a[rel^='prettyPhoto']:first").prettyPhoto({
@@ -110,5 +114,64 @@
 	
 		
 	</div>
+	<script type="text/javascript">
+	var scale = 1;  // scale of the image
+    var xLast = 0;  // last x location on the screen
+    var yLast = 0;  // last y location on the screen
+    var xImage = 0; // last x location on the image
+    var yImage = 0; // last y location on the image
+
+    // if mousewheel is moved
+    function zoom(){
+    
+    scale = 1;  // scale of the image
+    xLast = 0;  // last x location on the screen
+    yLast = 0;  // last y location on the screen
+    xImage = 0; // last x location on the image
+    yImage = 0;
+    $(".pp_fade").mousewheel(function(e) 
+    {
+        // find current location on screen 
+        var xScreen = e.pageX - $(this).offset().left;
+        var yScreen = e.pageY - $(this).offset().top;
+console.log(xScreen);
+        // find current location on the image at the current scale
+        xImage = xImage + ((xScreen - xLast) / scale);
+        yImage = yImage + ((yScreen - yLast) / scale);
+
+        // determine the new scale
+        if (e.deltaY > 0)
+        {
+            scale *= 1.02;
+        }
+        else
+        {
+            scale /= 1.02;
+        }
+        //xImage = (scale > 1) ? xImage : (xImage/1.05 < 0) ? 0.0 : xImage/1.05;
+        //yImage = (scale > 1) ? yImage : (yImage/1.05 < 0) ? 0.0 : yImage/1.05;
+        scale = scale < 1 ? 1 : (scale > 5 ? 5 : scale);
+
+        // determine the location on the screen at the new scale
+        var xNew = (xScreen - xImage) / scale;
+        var yNew = (yScreen - yImage) / scale;
+        if(e.deltaY < 0){
+        	xNew = (scale > 1) ? xNew : (Math.abs(xNew/1.05) < 0) ? 0.0 : xNew/1.05;
+        	yNew = (scale > 1) ? yNew : (Math.abs(yNew/1.05) < 0) ? 0.0 : yNew/1.05;
+        }
+        //xImage = (scale > 1) ? xImage : (xImage/1.05 < 0) ? 0.0 : xImage/1.05;
+        //yImage = (scale > 1) ? yImage : (yImage/1.05 < 0) ? 0.0 : yImage/1.05;
+
+        // save the current screen location
+        xLast = xScreen;
+        yLast = yScreen;
+
+        // redraw
+        $($(this).find('#pp_full_res img')[0]).css('transform', 'scale(' + scale + ')' + 'translate(' + xNew + 'px, ' + yNew + 'px' + ')')
+                           .css('transform-origin', xImage + 'px ' + yImage + 'px')
+        return false;
+    });
+	}
+</script>
 	</body>
 </html>
