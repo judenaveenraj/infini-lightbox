@@ -8,7 +8,8 @@
 		<link rel="stylesheet" href="css/prettyPhoto.css" type="text/css" media="screen" title="prettyPhoto main stylesheet" charset="utf-8" />
 		<script src="js/jquery.prettyPhoto.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/jquery-mousewheel.min.js" type="text/javascript" charset="utf-8"></script>
-
+		<script src="js/interact.min.js" type="text/javascript" charset="utf-8"></script>
+		
 		<style type="text/css" media="screen">
 			* { margin: 0; padding: 0; }
 			
@@ -93,7 +94,7 @@
 				$("area[rel^='prettyPhoto']").prettyPhoto();
 				
 				$(".gallery:first a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'normal',theme:'light_square',slideshow:3000, autoplay_slideshow: false,
-						changepicturecallback: function(){zoom();} /* Called everytime an item is shown/changed */
+						changepicturecallback: function(){zoom(); drag();} /* Called everytime an item is shown/changed */
 						}
 					);
 				$(".gallery:gt(0) a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'fast',slideshow:10000, hideflash: true});
@@ -120,8 +121,54 @@
     var yLast = 0;  // last y location on the screen
     var xImage = 0; // last x location on the image
     var yImage = 0; // last y location on the image
+    var xt = 0;
+    var yt = 0;
+    var tempx = 0;
+	var tempy = 0;
+	
 
-    // if mousewheel is moved
+		function drag(){
+
+			interact('#fullResImage')
+			  .draggable({
+			    // enable inertial throwing
+			    inertia: true,
+			    // keep the element within the area of it's parent
+			    restrict: {
+			      endOnly: true,
+			      elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+			    },
+
+			    // call this function on every dragmove event
+			    onmove: function (event) {
+			      var target = event.target,
+			          // keep the dragged position in the data-x/data-y attributes
+			          x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+			          y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+			      // translate the element
+			      target.style.webkitTransform =
+			      target.style.transform =
+			        'scale(' + scale + ')' + 'translate(' + x + 'px, ' + y + 'px)';
+
+			      // update the posiion attributes
+			      target.setAttribute('data-x', x);
+			      target.setAttribute('data-y', y);
+			    },
+			    // call this function on every dragend event
+			    onend: function (event) {
+			      var textEl = event.target.querySelector('p');
+
+			      textEl && (textEl.textContent =
+			        'moved a distance of '
+			        + (Math.sqrt(event.dx * event.dx +
+			                     event.dy * event.dy)|0) + 'px');
+			    }
+			  });	
+
+		}
+
+
     function zoom(){
     
     scale = 1;  // scale of the image
@@ -129,12 +176,11 @@
     yLast = 0;  // last y location on the screen
     xImage = 0; // last x location on the image
     yImage = 0;
-    $(".pp_fade").mousewheel(function(e) 
+    $('#pp_full_res img').mousewheel(function(e) 
     {
         // find current location on screen 
         var xScreen = e.pageX - $(this).offset().left;
         var yScreen = e.pageY - $(this).offset().top;
-console.log(xScreen);
         // find current location on the image at the current scale
         xImage = xImage + ((xScreen - xLast) / scale);
         yImage = yImage + ((yScreen - yLast) / scale);
@@ -142,33 +188,20 @@ console.log(xScreen);
         // determine the new scale
         if (e.deltaY > 0)
         {
-            scale *= 1.02;
+            scale *= 1.05;
         }
         else
         {
-            scale /= 1.02;
+            scale /= 1.05;
         }
-        //xImage = (scale > 1) ? xImage : (xImage/1.05 < 0) ? 0.0 : xImage/1.05;
-        //yImage = (scale > 1) ? yImage : (yImage/1.05 < 0) ? 0.0 : yImage/1.05;
         scale = scale < 1 ? 1 : (scale > 5 ? 5 : scale);
 
-        // determine the location on the screen at the new scale
-        var xNew = (xScreen - xImage) / scale;
-        var yNew = (yScreen - yImage) / scale;
-        if(e.deltaY < 0){
-        	xNew = (scale > 1) ? xNew : (Math.abs(xNew/1.05) < 0) ? 0.0 : xNew/1.05;
-        	yNew = (scale > 1) ? yNew : (Math.abs(yNew/1.05) < 0) ? 0.0 : yNew/1.05;
-        }
-        //xImage = (scale > 1) ? xImage : (xImage/1.05 < 0) ? 0.0 : xImage/1.05;
-        //yImage = (scale > 1) ? yImage : (yImage/1.05 < 0) ? 0.0 : yImage/1.05;
+        tx = $(this).attr("data-x") || 0;
+        ty = $(this).attr("data-y") || 0;
 
-        // save the current screen location
-        xLast = xScreen;
-        yLast = yScreen;
-
-        // redraw
-        $($(this).find('#pp_full_res img')[0]).css('transform', 'scale(' + scale + ')' + 'translate(' + xNew + 'px, ' + yNew + 'px' + ')')
-                           .css('transform-origin', xImage + 'px ' + yImage + 'px')
+        $(this).css('transform', 'scale(' + scale + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
+        $(this).css('-webkit-transform', 'scale(' + scale + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
+        
         return false;
     });
 	}

@@ -307,7 +307,10 @@
 		.pp_content { height: 40px; min-width: 40px; }
 		* html .pp_content { width: 40px; }
 		
-		.pp_fade { display: none; }
+		.pp_fade { display: none;
+
+			overflow: overflow;
+		 }
 		
 		.pp_content_container {
 			position: relative;
@@ -363,6 +366,7 @@
 		
 		.pp_hoverContainer {
 			position: absolute;
+			height: 0px !important;
 			top: 0;
 			width: 100%;
 			z-index: 2000;
@@ -430,18 +434,20 @@
 			background: url(../images/prettyPhoto/light_rounded/btnNext.png) 10000px 10000px no-repeat;
 			display: block;
 			float: right;
-			height: 100%;
+			height: 20px;
 			text-indent: -10000px;
-			width: 49%;
+			width: 29%;
+			margin-top:35%;
 		}
 			
 		a.pp_previous {
 			background: url(../images/prettyPhoto/light_rounded/btnNext.png) 10000px 10000px no-repeat;
 			display: block;
 			float: left;
-			height: 100%;
+			height: 20px;
 			text-indent: -10000px;
-			width: 49%;
+			width: 29%;
+			margin-top:35%;	
 		}
 		
 		a.pp_expand,
