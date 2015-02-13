@@ -132,11 +132,11 @@
 			interact('#fullResImage')
 			  .draggable({
 			    // enable inertial throwing
-			    inertia: true,
+			    inertia: false,
 			    // keep the element within the area of it's parent
 			    restrict: {
-			      endOnly: true,
-			      elementRect: { top: 0, left: 0, bottom: 1, right: 1 }
+			      endOnly: false,
+			      
 			    },
 
 			    // call this function on every dragmove event
@@ -146,11 +146,29 @@
 			          x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
 			          y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
+			      var currWidth = parseFloat(target.style.width)*scale;
+			      var currHeight = parseFloat(target.style.height)*scale;
+			      var halfcw = currWidth/2.0;
+			      var halfch = currHeight/2.0;
+			      var leftLimitx = ((halfcw-(parseFloat(target.style.width)/2.0))/scale);
+			      var rightLimitx =(((currWidth-parseFloat(target.style.width))/scale)-leftLimitx);
+			      var leftLimity = ((halfch-(parseFloat(target.style.height)/2.0))/scale);
+			      var rightLimity =(((currHeight-parseFloat(target.style.height))/scale)-leftLimity);
+			      
+			      x = (x>leftLimitx)? 
+			      			leftLimitx : 
+			      				(-x< rightLimitx)?  x 
+			      					: -rightLimitx;
+			      
+			      y = (y>leftLimity)? 
+			      			leftLimity : 
+			      				(-y< rightLimity)?  y 
+			      					: -rightLimity;
+
 			      // translate the element
 			      target.style.webkitTransform =
 			      target.style.transform =
 			        'scale(' + scale + ')' + 'translate(' + x + 'px, ' + y + 'px)';
-
 			      // update the posiion attributes
 			      target.setAttribute('data-x', x);
 			      target.setAttribute('data-y', y);
