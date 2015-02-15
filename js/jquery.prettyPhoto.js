@@ -5,6 +5,16 @@
 	Version: 3.1.5
 ------------------------------------------------------------------------- */
 (function($) {
+	var scale = 1;  // scale of the image
+  var xLast = 0;  // last x location on the screen
+  var yLast = 0;  // last y location on the screen
+  var xImage = 0; // last x location on the image
+  var yImage = 0; // last y location on the image
+  var xt = 0;
+  var yt = 0;
+  var tempx = 0;
+	var tempy = 0;
+
 	$.prettyPhoto = {version: '3.1.5'};
 	$.fn.prettyPhoto = function(pp_settings) {
 		pp_settings = jQuery.extend({
@@ -59,7 +69,7 @@
 												<a href="#" class="pp_arrow_next">Next</a> \
 											</div> \
 											<p class="pp_description"></p> \
-											<div class="pp_zoom"><button onclick="zoomIn()"> + </button><button onclick="zoomOut()"> - </button></div> \
+											<div class="pp_zoom"><button class="pp_zoomin"> + </button><button class="pp_zoomout"> - </button></div> \
 											<a class="pp_close" href="#">Close</a> \
 											<div class="pp_extra"> \
 												<div class="pp_copyright"></div> \
@@ -141,7 +151,129 @@
 				};
 			});
 		};
-		
+		function dragEnable(){
+
+			interact('#fullResImage')
+			  .draggable({
+			    // enable inertial throwing
+			    inertia: false,
+			    // keep the element within the area of it's parent
+			    restrict: {
+			      endOnly: false,
+			    },
+
+			    // call this function on every dragmove event
+			    onmove: function (event) {
+			      var target = event.target,
+			          // keep the dragged position in the data-x/data-y attributes
+			          x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx,
+			          y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+
+			      var currWidth = parseFloat(target.style.width)*scale;
+			      var currHeight = parseFloat(target.style.height)*scale;
+			      var halfcw = currWidth/2.0;
+			      var halfch = currHeight/2.0;
+			      var leftLimitx = ((halfcw-(parseFloat(target.style.width)/2.0))/scale);
+			      var rightLimitx =(((currWidth-parseFloat(target.style.width))/scale)-leftLimitx);
+			      var leftLimity = ((halfch-(parseFloat(target.style.height)/2.0))/scale);
+			      var rightLimity =(((currHeight-parseFloat(target.style.height))/scale)-leftLimity);
+			      
+			      x = (x>leftLimitx)? 
+			      			leftLimitx : 
+			      				(-x< rightLimitx)?  x 
+			      					: -rightLimitx;
+			      
+			      y = (y>leftLimity)? 
+			      			leftLimity : 
+			      				(-y< rightLimity)?  y 
+			      					: -rightLimity;
+
+			      // translate the element
+			      applyTransforms(scale, x ,y);
+			      // update the posiion attributes
+			      target.setAttribute('data-x', x);
+			      target.setAttribute('data-y', y);
+			    },
+			    // call this function on every dragend event
+			    onend: function (event) {
+			      var textEl = event.target.querySelector('p');
+
+			      textEl && (textEl.textContent =
+			        'moved a distance of '
+			        + (Math.sqrt(event.dx * event.dx +
+			                     event.dy * event.dy)|0) + 'px');
+			    }
+			  });	
+
+		}
+
+		function zoomEnable(){
+    
+    scale = 1;  // scale of the image
+    xLast = 0;  // last x location on the screen
+    yLast = 0;  // last y location on the screen
+    xImage = 0; // last x location on the image
+    yImage = 0;
+    $('#pp_full_res img').mousewheel(function(e) 
+    {
+        // find current location on screen 
+        var xScreen = e.pageX - $(this).offset().left;
+        var yScreen = e.pageY - $(this).offset().top;
+        // find current location on the image at the current scale
+        xImage = xImage + ((xScreen - xLast) / scale);
+        yImage = yImage + ((yScreen - yLast) / scale);
+
+        // determine the new scale
+        if (e.deltaY > 0)
+        {
+            scale *= 1.05;
+        }
+        else
+        {
+            scale /= 1.05;
+        }
+        scale = scale < 1 ? 1 : (scale > 5 ? 5 : scale);
+
+        tx = $(this).attr("data-x") || 0;
+        ty = $(this).attr("data-y") || 0;
+
+        applyTransforms(scale, tx ,ty);
+        return false;
+    });
+	}
+
+	function applyTransforms(s, tx, ty){
+		if(s === 1){
+			$('#pp_full_res img').attr("data-x",0);
+			$('#pp_full_res img').attr("data-y",0);
+		} 
+		$('#pp_full_res img').css('transform', 'scale(' + s + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
+    $('#pp_full_res img').css('-webkit-transform', 'scale(' + s + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
+	}
+
+	function zoomIn(){
+		scale *=1.5;
+		scale = scale < 1 ? 1 : (scale > 5 ? 5 : scale);
+		if(scale === 1){
+			$('#pp_full_res img').attr("data-x",0);
+			$('#pp_full_res img').attr("data-y",0);
+		} 
+		tx = $('#pp_full_res img').attr("data-x") || 0;
+    ty = $('#pp_full_res img').attr("data-y") || 0;
+		applyTransforms(scale, tx,ty);
+	}
+
+	function zoomOut(){
+		scale /=1.5;
+		scale = scale < 1 ? 1 : (scale > 5 ? 5 : scale);
+		if(scale === 1){
+			$('#pp_full_res img').attr("data-x",0);
+			$('#pp_full_res img').attr("data-y",0);
+		} 
+		tx = $('#pp_full_res img').attr("data-x") || 0;
+    ty = $('#pp_full_res img').attr("data-y") || 0;
+		applyTransforms(scale, tx ,ty);
+	}
 		/**
 		* Initialize prettyPhoto.
 		*/
@@ -211,7 +343,8 @@
 				$pp_pic_holder.find('.pp_social').html(facebook_like_link);
 			}
 
-			
+			$('.pp_zoomin').click(zoomIn);
+			$('.pp_zoomout').click(zoomOut);
 			$pp_pic_holder.find('.pp_copyright').html(settings.copyright);
 			$pp_pic_holder.find('.pp_view_original').click(function(){
 					location.href = $('#fullResImage').attr('src');
@@ -549,6 +682,9 @@
 				
 				if(settings.autoplay_slideshow && !pp_slideshow && !pp_open) $.prettyPhoto.startSlideshow();
 				
+				//Enable Drag and Zoom on picture
+				zoomEnable(); 
+				dragEnable();
 				settings.changepicturecallback(); // Callback!
 				
 				pp_open = true;
