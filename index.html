@@ -59,6 +59,8 @@
 					<li>Touch Support </li><br>
 					<li>Magnifier Icons, Copyright Statements</li><br>
 					<li>Social Media Integration - <strong>Partially Completed</strong> </li><br>
+					<li>View Original/View Details - <strong>Completed</strong> </li><br>
+					
 			</ul>
 			<!-- <h2>Gallery</h2>
 			<ul class="gallery clearfix">
@@ -72,11 +74,11 @@
 
 			<h2>Gallery</h2>
 			<ul class="gallery clearfix">
-				<li><a href="images/fullscreen/3.jpg" rel="prettyPhoto[gallery2]" title="How is the description on that one? How is the description on that one? How is the description on that one? "><img src="images/thumbnails/t_3.jpg" width="60" height="60" alt="This is a pretty long title" /></a></li>
-				<li><a href="images/fullscreen/4.jpg" rel="prettyPhoto[gallery2]" title="Description on a single line."><img src="images/thumbnails/t_4.jpg" width="60" height="60" alt="" /></a></li>
-				<li><a href="images/fullscreen/5.jpg" rel="prettyPhoto[gallery2]"><img src="images/thumbnails/t_5.jpg" width="60" height="60" alt="" /></a></li>
-				<li><a href="images/fullscreen/1.jpg" rel="prettyPhoto[gallery2]"><img src="images/thumbnails/t_1.jpg" width="60" height="60" alt="" /></a></li>
-				<li><a href="images/fullscreen/2.jpg" rel="prettyPhoto[gallery2]"><img src="images/thumbnails/t_2.jpg" width="60" height="60" alt="" /></a></li>
+				<li><a href="images/fullscreen/3.jpg" rel="prettyPhoto[gallery2]" detail="/photos/3.html" ><img src="images/thumbnails/t_3.jpg" width="60" height="60" alt=""></a></li>
+				<li><a href="images/fullscreen/4.jpg" rel="prettyPhoto[gallery2]" detail="/photos/4.html" ><img src="images/thumbnails/t_4.jpg" width="60" height="60" alt="" /></a></li>
+				<li><a href="images/fullscreen/5.jpg" rel="prettyPhoto[gallery2]" detail="/photos/5.html" ><img src="images/thumbnails/t_5.jpg" width="60" height="60" alt="" /></a></li>
+				<li><a href="images/fullscreen/1.jpg" rel="prettyPhoto[gallery2]" detail="/photos/6.html" ><img src="images/thumbnails/t_1.jpg" width="60" height="60" alt="" /></a></li>
+				<li><a href="images/fullscreen/2.jpg" rel="prettyPhoto[gallery2]" detail="/photos/7.html" ><img src="images/thumbnails/t_2.jpg" width="60" height="60" alt="" /></a></li>
 			</ul>
 
 			<br /><br />
@@ -85,23 +87,13 @@
 	
 			<script type="text/javascript" charset="utf-8">
 			$(document).ready(function(){
-				$("area[rel^='prettyPhoto']").prettyPhoto();
 				
-				$(".gallery:first a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'normal',theme:'light_square',slideshow:3000, autoplay_slideshow: false,
-						changepicturecallback: function(){zoom(); drag();} /* Called everytime an item is shown/changed */
+				$(".gallery:first a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'normal',theme:'light_square',slideshow: false,
+						changepicturecallback: function(){zoom(); drag();},
+						copyright: '(c) Cédric de Foucault, some rights reserved (CC BY-NC-SA)' /* Called everytime an item is shown/changed */
 						}
 					);
-				$(".gallery:gt(0) a[rel^='prettyPhoto']").prettyPhoto({animation_speed:'fast',slideshow:10000, hideflash: true});
-		
-				$("#custom_content a[rel^='prettyPhoto']:first").prettyPhoto({
-					custom_markup: '<div id="map_canvas" style="width:260px; height:265px"></div>',
-					changepicturecallback: function(){ initialize(); }
-				});
-
-				$("#custom_content a[rel^='prettyPhoto']:last").prettyPhoto({
-					custom_markup: '<div id="bsap_1259344" class="bsarocks bsap_d49a0984d0f377271ccbf01a33f2b6d6"></div><div id="bsap_1237859" class="bsarocks bsap_d49a0984d0f377271ccbf01a33f2b6d6" style="height:260px"></div><div id="bsap_1251710" class="bsarocks bsap_d49a0984d0f377271ccbf01a33f2b6d6"></div>',
-					changepicturecallback: function(){ _bsap.exec(); }
-				});
+				
 			});
 			</script>
 	
@@ -160,9 +152,7 @@
 			      					: -rightLimity;
 
 			      // translate the element
-			      target.style.webkitTransform =
-			      target.style.transform =
-			        'scale(' + scale + ')' + 'translate(' + x + 'px, ' + y + 'px)';
+			      applyTransforms(scale, x ,y);
 			      // update the posiion attributes
 			      target.setAttribute('data-x', x);
 			      target.setAttribute('data-y', y);
@@ -211,12 +201,44 @@
         tx = $(this).attr("data-x") || 0;
         ty = $(this).attr("data-y") || 0;
 
-        $(this).css('transform', 'scale(' + scale + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
-        $(this).css('-webkit-transform', 'scale(' + scale + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
-        
+        applyTransforms(scale, tx ,ty);
         return false;
     });
 	}
+
+	function applyTransforms(s, tx, ty){
+		if(s === 1){
+			$('#pp_full_res img').attr("data-x",0);
+			$('#pp_full_res img').attr("data-y",0);
+		} 
+		$('#pp_full_res img').css('transform', 'scale(' + s + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
+    $('#pp_full_res img').css('-webkit-transform', 'scale(' + s + ')' + 'translate(' + tx + 'px, ' + ty + 'px)');
+	}
+
+	function zoomIn(){
+		scale *=1.5;
+		scale = scale < 1 ? 1 : (scale > 5 ? 5 : scale);
+		if(scale === 1){
+			$('#pp_full_res img').attr("data-x",0);
+			$('#pp_full_res img').attr("data-y",0);
+		} 
+		tx = $('#pp_full_res img').attr("data-x") || 0;
+    ty = $('#pp_full_res img').attr("data-y") || 0;
+		applyTransforms(scale, tx,ty);
+	}
+
+	function zoomOut(){
+		scale /=1.5;
+		scale = scale < 1 ? 1 : (scale > 5 ? 5 : scale);
+		if(scale === 1){
+			$('#pp_full_res img').attr("data-x",0);
+			$('#pp_full_res img').attr("data-y",0);
+		} 
+		tx = $('#pp_full_res img').attr("data-x") || 0;
+    ty = $('#pp_full_res img').attr("data-y") || 0;
+		applyTransforms(scale, tx ,ty);
+	}
+
 </script>
 	</body>
 </html>

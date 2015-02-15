@@ -42,6 +42,7 @@
 	div.pp_default .pp_nav .pp_pause { background: url(../images/prettyPhoto/default/sprite.png) -51px 1px no-repeat; height:30px; width:30px; }
 	div.pp_default .pp_nav .pp_pause { background-position: -51px -29px; }
 	div.pp_default .pp_details { position: relative; }
+	div.pp_default .pp_extra { position: relative; }
 	div.pp_default a.pp_arrow_previous,
 	div.pp_default a.pp_arrow_next { background: url(../images/prettyPhoto/default/sprite.png) -31px -3px no-repeat; height: 20px; margin: 4px 0 0 0; width: 20px; }
 	div.pp_default a.pp_arrow_next { left: 52px; background-position: -82px -3px; } /* The next arrow in the bottom nav */
@@ -329,10 +330,19 @@
 					margin: 0;
 				}
 				
+				.pp_zoom { float: left; margin: 0; }
+				.pp_zoom button{
+					padding: 10px;
+					margin: 0px 5px;
+					font-style: bold;
+					vertical-align: middle;
+				}
+
 				.pp_social { float: left; margin: 0; }
 				.pp_social .facebook { float: left; margin-left: 5px; width: 55px; overflow: hidden; }
 				.pp_social .twitter { float: left; }
 				
+
 				.pp_nav {
 					clear: right;
 					float: left;
@@ -530,3 +540,19 @@
 			z-index: 9999;
 		}
 
+
+
+.pp_extra { position: relative; 
+						margin-top: 50px;
+						height: 20px;
+					}
+
+.pp_extra2 { position: relative; 
+						margin-top: 10px;
+						height: 20px;
+					}
+
+
+.pp_copyright { float: left; margin: 0; font-size: 12px; color: #999}
+.pp_view_original { float: right; font-size:11px;  margin: 0; }
+.pp_view_details { float: right; font-size:11px; padding-right: 10px; margin: 0; }

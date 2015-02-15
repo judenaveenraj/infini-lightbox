@@ -6,7 +6,6 @@
 ------------------------------------------------------------------------- */
 (function($) {
 	$.prettyPhoto = {version: '3.1.5'};
-	
 	$.fn.prettyPhoto = function(pp_settings) {
 		pp_settings = jQuery.extend({
 			hook: 'rel', /* the attribute tag to use for prettyPhoto hooks. default: 'rel'. For HTML5, use "data-rel" or similar. */
@@ -60,8 +59,16 @@
 												<a href="#" class="pp_arrow_next">Next</a> \
 											</div> \
 											<p class="pp_description"></p> \
-											<div class="pp_social">{pp_social}</div> \
+											<div class="pp_zoom"><button onclick="zoomIn()"> + </button><button onclick="zoomOut()"> - </button></div> \
 											<a class="pp_close" href="#">Close</a> \
+											<div class="pp_extra"> \
+												<div class="pp_copyright"></div> \
+												<a href="#" class="pp_view_original">View Original</a> \
+												<a href="#" class="pp_view_details">View Details</a> \
+											</div> \
+											<div class="pp_extra2"> \
+												<div class="pp_social">{pp_social}</div> \
+											</div> \
 										</div> \
 									</div> \
 								</div> \
@@ -153,6 +160,7 @@
 			pp_images = (isSet) ? jQuery.map(matchedObjects, function(n, i){ if($(n).attr(settings.hook).indexOf(theRel) != -1) return $(n).attr('href'); }) : $.makeArray($(this).attr('href'));
 			pp_titles = (isSet) ? jQuery.map(matchedObjects, function(n, i){ if($(n).attr(settings.hook).indexOf(theRel) != -1) return ($(n).find('img').attr('alt')) ? $(n).find('img').attr('alt') : ""; }) : $.makeArray($(this).find('img').attr('alt'));
 			pp_descriptions = (isSet) ? jQuery.map(matchedObjects, function(n, i){ if($(n).attr(settings.hook).indexOf(theRel) != -1) return ($(n).attr('title')) ? $(n).attr('title') : ""; }) : $.makeArray($(this).attr('title'));
+			pp_details = (isSet) ? jQuery.map(matchedObjects, function(n, i){ if($(n).attr(settings.hook).indexOf(theRel) != -1) return ($(n).attr('detail')) ? $(n).attr('detail') : ""; }) : $.makeArray($(this).attr('detail'));
 			
 			if(pp_images.length > settings.overlay_gallery_max) settings.overlay_gallery = false;
 			
@@ -202,6 +210,17 @@
 				facebook_like_link = settings.social_tools.replace('{location_href}', encodeURIComponent(location.href)); 
 				$pp_pic_holder.find('.pp_social').html(facebook_like_link);
 			}
+
+			
+			$pp_pic_holder.find('.pp_copyright').html(settings.copyright);
+			$pp_pic_holder.find('.pp_view_original').click(function(){
+					location.href = $('#fullResImage').attr('src');
+			});
+
+			$pp_pic_holder.find('.pp_view_details').click(function(){
+					if(pp_details[set_position] != undefined && pp_details[set_position]!='')
+						location.href = pp_details[set_position];
+			});
 			
 			// Fade the content in
 			if($ppt.is(':hidden')) $ppt.css('opacity',0).show();
@@ -216,6 +235,7 @@
 			}else{
 				$pp_pic_holder.find('.pp_description').hide();
 			}
+
 			
 			// Get the dimensions
 			movie_width = ( parseFloat(getParam('width',pp_images[set_position])) ) ? getParam('width',pp_images[set_position]) : settings.default_width.toString();
